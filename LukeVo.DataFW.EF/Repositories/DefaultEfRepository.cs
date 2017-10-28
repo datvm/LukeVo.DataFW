@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LukeVo.DataFW.EF.Repositories
 {
-    public class BaseEfRepository<TEntity> : IRepository<TEntity>
+    public class DefaultEfRepository<TEntity> : IRepository<TEntity>
        where TEntity : class, IEntity
     {
 
@@ -24,7 +24,7 @@ namespace LukeVo.DataFW.EF.Repositories
         public bool HasNoDefaultValueAttribute { get; private set; }
         public bool IsEntityActivable { get; private set; }
 
-        public BaseEfRepository(DbContext context)
+        public DefaultEfRepository(DbContext context)
         {
             this.dbContext = context;
             this.dbSet = this.dbContext.Set<TEntity>();
@@ -165,11 +165,11 @@ namespace LukeVo.DataFW.EF.Repositories
 
     }
 
-    public class BaseEfRepositoryAsync<TEntity> : BaseEfRepository<TEntity>, IRepositoryAsync<TEntity>
+    public class DefaultEfRepositoryAsync<TEntity> : DefaultEfRepository<TEntity>, IRepositoryAsync<TEntity>
        where TEntity : class, IEntity
     {
 
-        public BaseEfRepositoryAsync(DbContext context) : base(context) { }
+        public DefaultEfRepositoryAsync(DbContext context) : base(context) { }
 
         public async Task<TEntity> GetAsync<TKey>(TKey id)
         {

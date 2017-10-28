@@ -6,11 +6,11 @@ using System.Text;
 namespace LukeVo.DataFW.Data.ViewModels
 {
 
-    public interface IEntityViewModel<T> where T: IEntity
+    public interface IEntityViewModel<TEntity> where TEntity: IEntity
     {
-        
-        void CopyTo(T target);
-        void CopyFrom(T source);
+
+        IEntityViewModel<TEntity> CopyTo(TEntity target);
+        IEntityViewModel<TEntity> CopyFrom(TEntity source);
 
     }
     

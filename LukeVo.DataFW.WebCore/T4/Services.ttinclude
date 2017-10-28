@@ -1,0 +1,66 @@
+﻿<#@ template hostspecific="true" debug="false" language="C#" #>  
+<#@ output extension=".cs" #>  
+<#@ assembly name="EnvDTE" #>  
+<#@ assembly name="System.IO" #>  
+<#@ assembly name="System.Linq" #>  
+
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+
+<#@ include file="$(ProjectDir)T4\AutomationHelper.ttinclude" #>
+<#@ include file="$(ProjectDir)T4\LukeVoT4Helper.ttinclude" #>
+
+
+<#
+	const string InputNamespace = @"LukeVo.OpenChurchSystem.AccountingLedger.Data.Entities";
+	const string OutputNamespace = @"LukeVo.OpenChurchSystem.AccountingLedger.Models.Services";
+#>
+
+
+<#
+	var serviceProvider = (IServiceProvider)this.Host;  
+	var dte = (EnvDTE.DTE) serviceProvider.GetService(typeof(EnvDTE.DTE));  
+	
+	var currentProject = this.VisualStudioHelper.CurrentProject;
+	var workingNamespace = this.GetNamespace(
+		currentProject.CodeModel.CodeElements, InputNamespace);
+
+    if (workingNamespace == null) {
+		Error("Namespace " + InputNamespace + " not found");
+    } 
+	else 
+    {
+		
+#>
+using LukeVo.DataFW.Data;
+using LukeVo.DataFW.Data.Repositories;
+using LukeVo.DataFW.EF.Services;
+using LukeVo.DataFW.Data.Services;
+using <#= InputNamespace #>;
+namespace <#= OutputNamespace #>
+{
+	
+<# 
+		var classes = GetClassesInNamespaceImplementInterface(workingNamespace, "LukeVo.DataFW.Data.Entities.IEntity");
+
+        foreach (var declaredClass in classes)
+        {
+#>
+
+	public partial interface I<#= declaredClass.Name #>Service : IServiceAsync<<#= declaredClass.Name #>> {}
+
+	public partial class <#= declaredClass.Name #>Service : DefaultEfServiceAsync<<#= declaredClass.Name #>>, I<#= declaredClass.Name #>Service
+	{
+		public <#= declaredClass.Name #>Service(IUnitOfWorkAsync unitOfWork, IRepositoryAsync<<#= declaredClass.Name #>> repository) : base(unitOfWork, repository)
+        {
+        }
+	}
+
+<#
+        }
+    }
+#>
+
+}
+

@@ -1,0 +1,53 @@
+﻿<#@ template hostspecific="true" debug="false" language="C#" #>  
+<#@ output extension=".cs" #>  
+<#@ assembly name="EnvDTE" #>  
+<#@ assembly name="System.IO" #>  
+<#@ assembly name="System.Linq" #>  
+
+<#@ import namespace="EnvDTE" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+
+<#@ include file="$(ProjectDir)T4\AutomationHelper.ttinclude" #>
+<#@ include file="$(ProjectDir)T4\LukeVoT4Helper.ttinclude" #>
+
+
+<#
+	const string InputNamespace = @"LukeVo.OpenChurchSystem.AccountingLedger.Data.Entities";
+#>
+
+
+<#
+	var serviceProvider = (IServiceProvider)this.Host;  
+	var dte = (EnvDTE.DTE) serviceProvider.GetService(typeof(EnvDTE.DTE));  
+	
+	var currentProject = this.VisualStudioHelper.CurrentProject;
+	var workingNamespace = this.GetNamespace(
+		currentProject.CodeModel.CodeElements, InputNamespace);
+
+    if (workingNamespace == null) {
+		Error("Namespace " + InputNamespace + " not found");
+    } 
+	else 
+    {
+		
+#>
+using LukeVo.DataFW.Data.Entities;
+namespace <#= InputNamespace #>
+{
+
+<# 
+		var classes = GetClassesWithoutBaseTypeInNamespace(workingNamespace, "Microsoft.EntityFrameworkCore.DbContext");
+
+        foreach (var declaredClass in classes)
+        {
+#>
+	public partial class <#= declaredClass.Name #> : IEntity {}
+
+<#
+        }
+    }
+#>
+
+}
+

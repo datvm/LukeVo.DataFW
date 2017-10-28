@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace LukeVo.DataFW.EF.Services
 {
-    public class BaseEfService<TEntity> : IService<TEntity> where TEntity : class, IEntity
+    public class DefaultEfService<TEntity> : IService<TEntity> where TEntity : class, IEntity
     {
         protected IUnitOfWork unitOfWork;
         protected IRepository<TEntity> repository;
 
-        public BaseEfService(IUnitOfWork unitOfWork, IRepository<TEntity> repository)
+        public DefaultEfService(IUnitOfWork unitOfWork, IRepository<TEntity> repository)
         {
             this.unitOfWork = unitOfWork;
             this.repository = repository;
@@ -102,13 +102,13 @@ namespace LukeVo.DataFW.EF.Services
 
     }
 
-    public class BaseEfServiceAsync<TEntity> : BaseEfService<TEntity>, IServiceAsync<TEntity> where TEntity : class, IEntity
+    public class DefaultEfServiceAsync<TEntity> : DefaultEfService<TEntity>, IServiceAsync<TEntity> where TEntity : class, IEntity
     {
 
         protected new IUnitOfWorkAsync unitOfWork;
         protected new IRepositoryAsync<TEntity> repository;
 
-        public BaseEfServiceAsync(IUnitOfWorkAsync unitOfWork, IRepositoryAsync<TEntity> repository) : base(unitOfWork, repository)
+        public DefaultEfServiceAsync(IUnitOfWorkAsync unitOfWork, IRepositoryAsync<TEntity> repository) : base(unitOfWork, repository)
         {
             this.unitOfWork = unitOfWork;
             this.repository = repository;

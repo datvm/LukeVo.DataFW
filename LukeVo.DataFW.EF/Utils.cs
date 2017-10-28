@@ -15,7 +15,7 @@ namespace LukeVo.DataFW.EF
             return new NotSupportedException("TEntity must implement IActivable to use this method. TEntity: " + typeof(TEntity).FullName);
         }
 
-        internal static void ThrowIfNotActivable<TEntity>(this BaseEfRepository<TEntity> repository)
+        internal static void ThrowIfNotActivable<TEntity>(this DefaultEfRepository<TEntity> repository)
             where TEntity : class, IEntity
         {
             if (!repository.IsEntityActivable)

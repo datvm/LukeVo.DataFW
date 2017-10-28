@@ -1,0 +1,73 @@
+﻿<#@ assembly name="System.Linq" #>  
+<#@ import namespace="System.Linq" #>
+
+<#+ 
+
+	EnvDTE.CodeNamespace GetNamespace(CodeElements source, string name) {
+		var dotPos = name.IndexOf(".");
+		var immediateName = dotPos == -1 ? name : name.Substring(0, dotPos);
+		var immediateCodeElement = source
+			.Cast<CodeElement>()
+			.FirstOrDefault(q => 
+				q.Kind == vsCMElement.vsCMElementNamespace &&
+				q.Name == immediateName)
+			as EnvDTE.CodeNamespace;
+
+		if (immediateCodeElement == null) {
+			return immediateCodeElement;
+        } else {
+			if (dotPos == -1) {
+				return immediateCodeElement;
+            } else {
+				var next = name.Substring(dotPos + 1);
+				return GetNamespace(immediateCodeElement.Members, next);
+            }
+        }
+    }
+
+	List<EnvDTE.CodeClass> GetClassesInNamespace(EnvDTE.CodeNamespace codeNamespace) {
+        return codeNamespace.Members
+			.Cast<CodeElement>()
+			.Where(q => q.Kind == vsCMElement.vsCMElementClass)
+			.Cast<EnvDTE.CodeClass>()
+			.ToList();
+    }
+
+	List<EnvDTE.CodeClass> GetClassesWithoutBaseTypeInNamespace(EnvDTE.CodeNamespace codeNamespace, string fullExclusiveBaseTypeName) {
+        return codeNamespace.Members
+			.Cast<CodeElement>()
+			.Where(q => q.Kind == vsCMElement.vsCMElementClass)
+			.Cast<EnvDTE.CodeClass>()
+			.Where(q => !q.Bases
+				.Cast<CodeElement>()
+				.Any(p => p.FullName == fullExclusiveBaseTypeName))
+			.ToList();
+    }
+
+	List<EnvDTE.CodeClass> GetClassesInNamespaceImplementInterface(EnvDTE.CodeNamespace codeNamespace, string fullInterfaceName) {
+        return codeNamespace.Members
+			.Cast<CodeElement>()
+			.Where(q => q.Kind == vsCMElement.vsCMElementClass)
+			.Cast<EnvDTE.CodeClass>()
+			.Where(q => q.ImplementedInterfaces
+				.Cast<CodeElement>()
+				.Any(p => p.FullName == fullInterfaceName))
+			.ToList();
+    }
+
+	List<EnvDTE.CodeProperty> GetClassProperties(EnvDTE.CodeClass codeClass) {
+		return codeClass.Members
+			.Cast<CodeElement>()
+			.Where(q => q.Kind == vsCMElement.vsCMElementProperty)
+			.Cast<EnvDTE.CodeProperty>()
+			.ToList();
+    }
+
+	bool IsValueType(EnvDTE.vsCMTypeRef typeRef) {
+		return typeRef != EnvDTE.vsCMTypeRef.vsCMTypeRefCodeType &&
+			typeRef != EnvDTE.vsCMTypeRef.vsCMTypeRefObject &&
+			typeRef != EnvDTE.vsCMTypeRef.vsCMTypeRefVoid &&
+			typeRef != EnvDTE.vsCMTypeRef.vsCMTypeRefOther;
+    }
+
+#>
